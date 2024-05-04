@@ -24,23 +24,27 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
-        val ktorVersion = "2.3.10"
         val kodeinVersion = "7.21.2"
         commonMain.dependencies {
             // put your Multiplatform dependencies here
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.encoding)
             implementation(libs.ktor.client.cio)
             implementation(libs.koin.core)
-            implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+            implementation(libs.kotlinx.coroutines.core)
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             api("dev.icerock.moko:mvvm-core:0.13.1")
             // KODE IN
             implementation ("org.kodein.di:kodein-di:$kodeinVersion")
 
-            implementation("io.ktor:ktor-client-logging:$ktorVersion")
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
     }
 }

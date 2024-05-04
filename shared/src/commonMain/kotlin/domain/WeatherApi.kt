@@ -1,21 +1,17 @@
 package domain
 
 import io.ktor.client.call.body
-import io.ktor.client.call.receive
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpStatusCode
-import kotlinx.serialization.json.Json
 import models.RespError
-import models.ResultType
 import models.WeatherReport
-import networking.KtorHttpClient
+import networking.BASE_URL
+import networking.httpClient
 
 internal class WeatherApi() {
 
     suspend fun getWeatherReport(location: String): Result<WeatherReport> = runCatching {
-        val response: HttpResponse = KtorHttpClient.getClient().get(KtorHttpClient.BASE_URL +"/current.json") {
+        val response: HttpResponse = httpClient.get(BASE_URL +"/current.json") {
             url {
                 parameters.append("key", "550881d62e1644948d0135017242804")
                 parameters.append("q", location)

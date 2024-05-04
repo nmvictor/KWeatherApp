@@ -2,7 +2,6 @@ package viewmodel
 
 import domain.WeatherUseCase
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
-import domain.WeatherRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +11,10 @@ import models.WeatherReport
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
+import io.ktor.utils.io.core.Closeable
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+
 
 val di = DI {
     bindSingleton<WeatherUseCase> { WeatherUseCase() }
@@ -22,10 +25,8 @@ class WeatherReportViewModel constructor() : ViewModel() {
     private val weatherUseCase: WeatherUseCase by di.instance()
     private val weatherReportMutable =
         MutableStateFlow<ResultType<WeatherReport>>(ResultType.Loading())
-    val weather = weatherReportMutable.asStateFlow()
 
-    private val selectedWeatherReportMutable = MutableStateFlow<WeatherReport?>(null)
-    val selected = selectedWeatherReportMutable.asStateFlow()
+    val weather = weatherReportMutable.asStateFlow().asCommonFlow()
 
     init {
         loadWeatherReport("Nairobi")
@@ -56,12 +57,26 @@ class WeatherReportViewModel constructor() : ViewModel() {
         }
     }
 
-    fun selectWeatherReport(report: WeatherReport) {
-        selectedWeatherReportMutable.value = report
-    }
 
     override fun onCleared() {
         viewModelScope.cancel()
         super.onCleared()
+    }
+}
+
+fun <T> Flow<T>.asCommonFlow(): CommonFlow<T> = CommonFlow(this)
+class CommonFlow<T>(private val origin: Flow<T>) : Flow<T> by origin {
+    fun watch(block: (T) -> Unit): Closeable {
+        val job = Job()
+
+        onEach {
+            block(it)
+        }.launchIn(CoroutineScope(Dispatchers.Main + job))
+
+        return object : Closeable {
+            override fun close() {
+                job.cancel()
+            }
+        }
     }
 }

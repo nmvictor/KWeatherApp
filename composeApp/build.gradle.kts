@@ -15,7 +15,7 @@ kotlin {
             }
         }
     }
-    
+
     sourceSets {
         val ktorVersion = "2.3.10"
         androidMain.dependencies {
@@ -24,6 +24,7 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.kotlinx.coroutines.android)
             // MOKO - MVVM
             implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
             implementation("androidx.navigation:navigation-compose:2.4.2")
@@ -40,9 +41,6 @@ kotlin {
             implementation(projects.shared)
             implementation(libs.koin.android)
 
-        }
-        iosMain.dependencies {
-            implementation("io.ktor:ktor-client-ios:$ktorVersion")
         }
     }
 }
